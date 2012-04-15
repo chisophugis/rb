@@ -60,3 +60,62 @@ Dir{"netbsd",
     causes an extra memory access) could be avoided.
   ]]
 }
+
+Dir{"sgi_stl",
+  desc = [[
+    Follows the CLRS code pretty closely. Uses real NULL pointers as nil
+    nodes.
+
+    One interesting feature of this code is that its tree header node is
+    just a regular node that stores the root of the tree as it "parent",
+    the leftmost element of the tree as its "left child" and rightmost
+    element of the tree as its "right child". It turns out that maintaining
+    these leftmost and rightmost pointers actually is actually pretty
+    cheap. For insert, just a comparison. For delete, it is just a
+    comparison and possibly a tree (min|max)imum operation (if the right
+    child is non-nil). It is interesting that the Linux red-black tree
+    doesn't keep min and max naturally, but due to its "toolbox" approach,
+    some users keep this information themselves (e.g. `timerqueue_(add|del)`)
+    and it does not appear to be significantly less efficient (although I
+    think that it nonetheless could be improved).
+  ]]
+}
+
+Dir{"boost_intrusive",
+  desc = [[
+    Based on the sgi_stl code, so it follows CLRS pretty closely. The only
+    major difference is that it is for intrusive containers, which means
+    that none of the leftmost or rightmost caching takes place.
+
+    The action takes place in `rebalance_after_erasure` and
+    `rebalance_after_insertion`. Beware that there is the usual Boost
+    template/namespace gobbledygook; e.g. pretty much all operations happen
+    through a `NodeTraits` template parameter, so that you get code like
+    `if(NodeTraits::get_color(w) == NodeTraits::red()){`. Ironically, for
+    all of its "genericity", the design doesn't really let you abstract
+    over anything interesting.
+  ]]
+}
+
+Dir{"libcxx"
+  desc = [[
+    This is probably the best among all the CLRS-following red-black trees
+    I have seen.
+
+    Tree basic operations are all factored out very nicely and cleanly. For
+    example, look at how well `__tree_is_left_child` and `__tree_min` come
+    together to make `__tree_next` superbly clean and clear.
+
+    The code, being standard library code (and for an internal class!), has
+    underscores before basically everything (so you'll see a local called
+    `__x` instead of just `x`).  Other than that (which can be easily fixed
+    with sed), the code is very easy to read (well, as long as you are
+    comfortable with C++). One caveat is how the actual node type is put
+    together.  There is `__tree_end_node` which holds just a left pointer,
+    and then `__tree_node_base` inherits from that and adds right and
+    parent pointers. This is so that `__tree` can embed just a
+    `__tree_end_node` inside itself as the header, and use that as a
+    "parent" of the tree root (similar to the dummy node of the sgi_stl
+    code).
+  ]]
+}
