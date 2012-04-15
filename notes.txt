@@ -1,0 +1,5 @@
+If we store which child each node is, then we can do case 2 and case 3 of
+insertion with fewer memory accesses. Some (a lot?) of the work that we do
+in case 2 get "overwritten" on falling into case 3. We should be able to
+(more-or-less) branchlessly perform all of the necessary restructurings in
+both case 2+3 and case 3.

@@ -1,0 +1,81 @@
+# from the dichromatic framework paper of Guibas and Sedgewick:
+
+# THIS IS KEY
+The implementation makes obvious an extension to 2-3-4 trees, which also
+fit nicely into the dichromatic framework. The idea is to allow 4-nodes
+(nodes with three keys and four sons), which are represented in Fig. 6. Now
+splitting only has to be done upon insertion into a 4-node, and the split
+corresponds to simply complementing the colors of the three nodes involved,
+as shown in Fig. 7. (We shall refer to this operation as a "color flip".)
+Insertion into a 3-node may require a single or double rotation to convert
+it into a 4-node: the necessary transformations are exactly the
+transformations of Fig. 3 without the color flips.
+
+
+
+
+
+
+In general, we shall consider families of trees which satisfy the following
+two conditions:
+
+1. External nodes are black; internal nodes may be red or black.
+
+2. For each internal node, all paths from it to external nodes contain the
+same number of black arcs.
+
+# "red-black trees" as usually described are simply the special case of
+# 2-3-4 trees embedded in the red-black framework
+
+There will further be a third condition, ***depending on the family of trees
+we consider***, which expresses the "balance" property. In essence, this
+condition will restrict the size of connected red subtrees that can arise.
+Such conditions can often be expressed in many equivalent forms. For 2-3-4
+trees, as we have seen, an appropriate condition is
+
+3. (2-3-4) No path from an internal node to an external node contains two
+red links in a row.
+
+Another way to express this condition is
+
+3'. (2-3-4) The only allowed connected red subtrees are those shown in Fig. 9.
+
+
+
+For another example, consider the extension of the above properties to
+handle general B-trees. An appropriate "balance condition" is:
+
+3' (B-tree of order m). The only allowed connected red subtrees are
+perfectly balanced trees with floor(m/2)-1 to m-1 nodes.
+
+
+# The definition of "perfectly balanced" leaves some flexibility of
+# implementation here.
+
+... an implied but weaker (equivalent when m is a power of 2) condition is
+
+3. (B-tree of order m). No path from an internal node to an external node
+contains more than floor(lg m)-1 consecutive red nodes.
+
+
+
+# wow
+Define the height of a node to be the length of the longest path from that
+node to an external node. To make an AVL tree into a 2-3-4 tree simply
+color red exactly those links which go from a node at an even height to a
+node at an odd height.
+
+
+# woah. second-order AVL-tree
+
+# woah. AVL with only one bit per node: each node stores one bit,
+# indicating whether or not it is taller than its brother
+
+# woah. maybe the RB algorithms can be simplified by choosing a different
+# weighing that results in a constant weighted path.
+It is also possible to color 2-3 and 2-3-4 trees with black and
+(double-weight) red links to give a constant weighted path length from each
+node: color both sons of each 2-node and the "upper" son of each 3-node
+red. This leads to an altcrnate dichromatic framework to the one we have
+been discussing. We have chosen to use zero weight links because the
+algorithrns appear to be somewhat simpler.

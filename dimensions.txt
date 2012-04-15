@@ -1,0 +1,26 @@
+Parent pointers vs. no parent pointers
+
+Recursive implementation vs non-recursive implementation
+
+2-3 vs. 2-3-4 vs. Left-Leaning-2-3-4
+
+Store which child we are? I think it would only require changes to the
+rotate routines. This would allow you to do most of the insert routine with
+almost no branches.
+The "which child am I" bit:
+- Can always be computed branchlessly from context
+- Only needs to change when the parent pointer changes, so no extra memory
+  accesses or monkey business.
+- Should probably be the lowest bit.
+(can rename `rb_parent_color` to `rb_parent_color_which`)
+
+
+What order to put the fields in the struct?
+
+restructure on the way down?
+
+during deletion, if the only child is red, then we can swap colors with it
+and get away without having to rebalance.
+
+introduce a little bit of randomness into whether we find predecessor or
+successor when deleting an interior black node.

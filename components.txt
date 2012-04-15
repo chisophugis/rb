@@ -1,0 +1,18 @@
++ Brutal test suite. Should quickly identify any incorrect implementation.
+
++ Tools for visualizing stuff.
+
++ Detailed bounds for each function.
+
++ Comprehensive performance tests with a clear architecture and easy way to
+plug in another implementation for testing.
+
++ Be able to independently change how the red-black tree nodes are
+allocated in the performance tests to prevent cache effects from
+confounding the results.
+
++ Look at `kazlib` in the bestiary and look at its main function in the .c
+file. Note how it has a mini command language that you can use to
+manipulate the trees from the command line. I like that idea.
+
++ Annotated bibliography of relevant papers and resources.
