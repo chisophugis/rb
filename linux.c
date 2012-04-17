@@ -253,7 +253,9 @@ void rb_insert_color(struct rb_node *node, struct rb_root *root)
 			rb_set_red(gparent);
 			__rb_rotate_right(gparent, root);
 			/* NOTE: we know we're done here, so why go back to
-			 * the loop test again? It's completely pointless. */
+			 * the loop test again? It's completely pointless,
+			 * unless it is for setting the root black... which
+			 * we should not have made red in the first place. */
 		} else {
 			{
 				register struct rb_node *uncle = gparent->rb_left;
@@ -265,20 +267,20 @@ void rb_insert_color(struct rb_node *node, struct rb_root *root)
 					node = gparent;
 					continue;
 				}
-
-				if (uncle && is_red(uncle))
-				{
-					register struct rb_node *tmp;
-					__rb_rotate_right(parent, root);
-					tmp = parent;
-					parent = node;
-					node = tmp;
-				}
-
-				rb_set_black(parent);
-				rb_set_red(gparent);
-				__rb_rotate_left(gparent, root);
 			}
+
+			if (parent->rb_left == node)
+			{
+				register struct rb_node *tmp;
+				__rb_rotate_right(parent, root);
+				tmp = parent;
+				parent = node;
+				node = tmp;
+			}
+
+			rb_set_black(parent);
+			rb_set_red(gparent);
+			__rb_rotate_left(gparent, root);
 		}
 	}
 
