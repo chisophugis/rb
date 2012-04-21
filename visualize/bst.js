@@ -15,9 +15,9 @@ var NODE_RADIUS = 2
 bst.draw = function (root, ctx, xmin_0, xmax_0, ybase_0) {
 
   function _draw (node, xmin, xmax, ybase) {
-    var halfway, childpos
+    var childpos
+      , halfway= xmin + (xmax - xmin) / 2
 
-    halfway= xmin + (xmax - xmin) / 2
     ctx.beginPath()
     ctx.arc(halfway, ybase, NODE_RADIUS, 0, 2*Math.PI, true)
     ctx.stroke()
@@ -72,9 +72,9 @@ function shuffle (arr) {
   while (i !== 0) {
     rand = Math.floor(Math.random() * i)
     i-= 1
-    tmp = ret[i]
-    ret[i] = ret[rand]
-    ret[rand] = tmp
+    tmp= ret[i]
+    ret[i]= ret[rand]
+    ret[rand]= tmp
   }
 
   return ret
@@ -91,9 +91,9 @@ function draw_random_bst (size) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  size= size || 10
+  size= size || 30
 
-  for (i = 0; i != size; i+= 1) data.push(Math.random())
+  for (i= 0; i != size; i+= 1) data.push(Math.random())
 
   data.forEach(function (el) {
     root= bst.recursive_insert(root, el, lt)
@@ -105,5 +105,5 @@ function draw_random_bst (size) {
 $('document').ready(function () { draw_random_bst() })
 
 $('#anew').on('click', function (ev) {
-  draw_random_bst(30)
+  draw_random_bst()
 })
