@@ -120,3 +120,16 @@ Dir{"libcxx",
   ]]
 }
 
+Dir{"kazlib",
+  desc = [[
+    Seems to more or less be a transcription of the CLRS code, including
+    having a real nil-node. Extremely similar to the sgi_stl implementation
+    except that it uses standard C ADT patterns like `void*` keys/values
+    and function pointer comparators.
+
+    One pretty cool thing about this red-black tree is the `main` function
+    that it has at the bottom, which implements a simple command
+    interpreter for interactively using the library or driving tests from a
+    script. I really like that.
+  ]]
+}
