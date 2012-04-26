@@ -130,6 +130,10 @@ static void __rb_rotate_left(struct rb_node *node, struct rb_root *root)
 	 * the root. */
 	/* NOTE: in the rotation of "case 2" of insertion, we know that
 	 * parent is not NULL, but I doubt gcc does ;)  */
+	/* NOTE: Any time that we would be rotating around the root, we
+	 * have a special case that lets us terminate early. So basically
+	 * having this check here is misguided, because we should never be
+	 * rotating around the root */
 	if (parent)
 	{
 		/* BRANCH_NOTE: don't know which child we are */
@@ -286,3 +290,190 @@ void rb_insert_color(struct rb_node *node, struct rb_root *root)
 
 	rb_set_black(root->rb_node);
 }
+
+
+
+static void __rb_erase_color(struct rb_node *node, struct rb_node *parent,
+		struct rb_root *root)
+{
+	struct rb_node *other;
+
+	while ((!node || rb_is_black(node)) && node != root->rb_node)
+	{
+		/* BRANCH_NOTE: don't know which child we are; also, can
+		 * fold symmetric cases */
+		if (parent->rb_left == node) {
+			other = parent->rb_right;
+			if (rb_is_red(other))
+			{
+				/* NOTE: pointless memory accesses. these
+				 * are going to be accessed while rotating
+				 * anyway. should set them then */
+				rb_set_black(other);
+				rb_set_red(parent);
+				/* NOTE: we can terminate after this
+				 * rotation if parent is the root */
+				__rb_rotate_left(parent, root);
+				/* NOTE: we already have this in a
+				 * register while rotating! no need to
+				 * fetch it! */
+				other = parent->rb_right;
+				/* NOTE: after this, we finish in constant
+				 * time */
+			}
+			/* NOTE:
+			 *	Outer	Inner	Action
+			 *	R	B	case 4
+			 *	R	R	case 4
+			 *	B	R	case 3 falling into case 4
+			 *	B	B	move up and continue loop
+			 *
+			 * This means that we need to test the outer child
+			 * of our sibling first. If so, we can directly go
+			 * to case 4.
+			 * */
+			if ((!other->rb_left || rb_is_black(other->rb_left)) &&
+			    (!other->rb_right || rb_is_black(other->rb_right)))
+			{
+				rb_set_red(other);
+				node = parent;
+				parent = rb_parent(node);
+				/* NOTE: This is the only place from which
+				 * we continue the loop. */
+			}
+			else
+			{
+				/* NOTE: if sibling's outer child is not
+				 * red, make it red. */
+				/* BRANCH_NOTE: we already did this test
+				 * above. */
+				if (!other->rb_right || rb_is_black(other->rb_right))
+				{
+					rb_set_black(other->rb_left);
+					rb_set_red(other);
+					__rb_rotate_right(other, root);
+					other = parent->rb_right;
+				}
+				rb_set_color(other, rb_color(parent));
+				rb_set_black(parent);
+				rb_set_black(other->rb_right);
+				__rb_rotate_left(parent, root);
+				node = root->rb_node;
+				break;
+			}
+		} else {
+			other = parent->rb_left;
+			if (rb_is_red(other)) {
+				rb_set_black(other);
+				rb_set_red(parent);
+				__rb_rotate_left(parent, root);
+				other = parent->rb_left;
+			}
+			if ((!other->rb_left || rb_is_black(other->rb_left)) &&
+			    (!other->rb_right || rb_is_black(other->rb_right)))
+			{
+				rb_set_red(other);
+				node = parent;
+				parent = rb_parent(node);
+			}
+			else
+			{
+				if (!other->rb_left || rb_is_black(other->rb_left))
+				{
+					rb_set_black(other->rb_right);
+					rb_set_red(other);
+					__rb_rotate_left(other, root);
+					other = parent->rb_left;
+				}
+				rb_set_color(other, rb_color(parent));
+				rb_set_black(parent);
+				rb_set_black(other->rb_left);
+				__rb_rotate_right(parent, root);
+				node = root->rb_node;
+				break;
+			}
+		}
+	}
+	if (node)
+		rb_set_black(node);
+}
+
+
+void rb_erase(struct rb_node *node, struct rb_root *root)
+{
+	struct rb_node *child, *parent;
+	int color;
+
+	if (!node->rb_left)
+		child = node->rb_right;
+	else if (!node->rb_right)
+		child = node->rb_left;
+	else
+	{
+		struct rb_node *old = node, *left;
+
+		/* NOTE: find minimum in right subtree */
+		node = node->rb_right;
+		while ((left = node->rb_left) != NULL)
+			node = left;
+
+		/* BRANCH_NOTE: NULL check (for root) */
+		if (rb_parent(old)) {
+			/* BRANCH_NOTE: don't know which child we are */
+			if (rb_parent(old)->rb_left == old)
+				rb_parent(old)->rb_left = node;
+			else
+				rb_parent(old)->rb_right = node;
+		} else
+			root->rb_node = node;
+
+		/* NOTE: this seems inefficient; we already have (or easily
+		 * could have) this information in a register somewhere. */
+		child = node->rb_right;
+		parent = rb_parent(node);
+		color = rb_color(node);
+
+		/* BRANCH_NOTE: don't know if right subtree's minimum is
+		 * the direct child */
+		if (parent == old) {
+			parent = node;
+		} else {
+			/* BRANCH_NOTE: NULL check */
+			if (child)
+				rb_set_parent(child, parent);
+			parent->rb_left = child;
+
+			node->rb_right = old->rb_right;
+			rb_set_parent(old->rb_right, node);
+		}
+
+		node->rb_parent_color = old->rb_parent_color;
+		node->rb_left = old->rb_left;
+		rb_set_parent(old->rb_left, node);
+
+		goto color;
+	}
+
+	parent = rb_parent(node);
+	color = rb_color(node);
+
+	/* BRANCH_NOTE: NULL check */
+	if (child)
+		rb_set_parent(child, parent);
+
+	/* BRANCH_NOTE: NULL check (for root)*/
+	if (parent)
+	{
+		/* BRANCH_NOTE: don't know which child we are */
+		if (parent->rb_left == node)
+			parent->rb_left = child;
+		else
+			parent->rb_right = child;
+	} else
+		root->rb_node = child;
+
+color:
+	if (color == RB_BLACK)
+		__rb_erase_color(child, parent, root);
+}
+
