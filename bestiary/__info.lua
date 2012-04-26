@@ -97,7 +97,7 @@ Dir{"boost_intrusive",
   ]]
 }
 
-Dir{"libcxx"
+Dir{"libcxx",
   desc = [[
     This is probably the best among all the CLRS-following red-black trees
     I have seen.
@@ -119,3 +119,4 @@ Dir{"libcxx"
     code).
   ]]
 }
+
