@@ -133,3 +133,16 @@ Dir{"kazlib",
     script. I really like that.
   ]]
 }
+
+Dir{"linux",
+  desc = [[
+    This is one of my favorites; exquisite "mechanism, not policy" design.
+
+    Also includes augmented rbtree routines. These routines
+    have recently been moved to having a duplicated implementation in a
+    header file so that the invariant restoring functions can be inlined.
+    The previous design was quite elegant (but slower) and didn't involve
+    modifying the insert and erase routines to make them aware of the
+    augmentation.
+  ]]
+}
