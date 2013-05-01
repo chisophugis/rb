@@ -1,5 +1,9 @@
+# Red-Black Trees
+
 This repo contains some investigation I did (and hope to return to some
 day) surveying the variety of red-black tree implementations.
+
+## The bestiary
 
 All of the red-black trees I could find across the net are inside the
 `bestiary/` directory. The file `bestiary/__info.lua` contains an annotated
@@ -21,6 +25,8 @@ Another dead giveaway that the authors weren't thinking very hard and were
 instead just copying from CLRS is that they have the "end-game" code for
 insert rebalancing *inside* the loop that goes up the tree splitting
 4-nodes, which is ridiculous.
+
+## Other files
 
 The file `dimensions.txt` contains some interesting "implementation
 dimensions" along which an implementation can vary.
