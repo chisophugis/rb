@@ -16,7 +16,7 @@ textbook without thinking twice about what is actually going on. See
 One particularly annoying example is that most implementations treat the
 left-hand and right-hand cases differently using an `if` with two basically
 identical branches, except switching left for right instead of storing
-child nodes in an array (e.g. 'struct rb_node *children[2];`).
+child nodes in an array (e.g. `struct rb_node *children[2];`).
 Another dead giveaway that the authors weren't thinking very hard and were
 instead just copying from CLRS is that they have the "end-game" code for
 insert rebalancing *inside* the loop that goes up the tree splitting
