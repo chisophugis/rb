@@ -1,7 +1,8 @@
 # Red-Black Trees
 
 This repo contains some investigation I did (and hope to return to some
-day) surveying the variety of red-black tree implementations.
+day) surveying the variety of red-black tree implementations, with the
+intent of writing a better implementation.
 
 ## The bestiary
 
