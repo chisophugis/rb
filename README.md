@@ -32,6 +32,17 @@ insert rebalancing *inside* the loop that goes up the tree splitting
 
 ## Other files
 
+The file `try.c` contains an experimental unfinished insertion procedure
+combining what I've learned from all the implementations I've surveyed.
+It may look kind of ugly (it has some nasty goto's that could be removed
+fairly easily by "rotating" the main loop, but I haven't done that yet).
+The core of the code is really tight and (at least for me) is extremely
+clear with what the algorithm is actually doing, since the logical parts
+aren't mixed together inside a huge loop (like in CLRS and most other
+implementations).
+`try.c.bak` contains some remains from a previous version, but I think it
+has some explanations in it that are worth keeping.
+
 The file `dimensions.txt` contains some interesting "implementation
 dimensions" along which an implementation can vary.
 
