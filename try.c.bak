@@ -1,0 +1,123 @@
+#define __rb_is_black(node) ((node) && rb_is_red(node))
+
+void rb_insert_color(struct rb_node *node, struct rb_root *root)
+{
+	struct rb_node *parent, *gparent;
+	/* NOTE: it seems like `other_right` is the one that is used
+	 * predominantly, so it might make sensed to change the meaning of
+	 * the field to be "sibling index" rather than "my index" */
+	int which_left, other_right;
+
+	/* NOTE: loop could pretty easily be rearranged to avoid this. */
+	goto inside:
+
+	/* NOTE: Basically what we do in this loop is to go up the tree
+	 * splitting 4-nodes (i.e. doing color flips while our uncle (and
+	 * parent of course) is red) */
+	while (true)
+	{
+		which_left = __rb_which_child(parent);
+		other_right = __rb_other_child(which_left);
+
+		/* NOTE: do this efficiently along with the
+		 * __rb_which_child if possible. hint: we know that parent
+		 * is red */
+		gparent = rb_parent(parent);
+
+		struct rb_node *const uncle = gparent->rb_children[other_right];
+		/* BRANCH_NOTE: uncle being NULL. uncle being red */
+		if (uncle == NULL || rb_color(uncle) == RB_COLOR_BLACK) {
+			/* NOTE: leave the loop; we can finish with
+			 * constant work now */
+			goto endgame;
+		}
+		/* NOTE: color flip */
+		rb_set_black(uncle);
+		rb_set_black(parent);
+		node = gparent;
+		/* NOTE: finish color flip and continue up the tree */
+		rb_set_red(node);
+inside:
+		parent = rb_parent(node);
+		if (parent == NULL) {
+			/* NOTE: node is the root, leave it black and
+			 * finish. This is how the tree increases in
+			 * black-height */
+			return;
+		}
+		if (rb_color(parent) == RB_COLOR_BLACK) {
+			/* NOTE: we have a parent, which means that we
+			 * aren't the root, which means that the root has
+			 * not been recolored, so the root is still black */
+			rb_set_black(root->rb_node);
+			return;
+		}
+	}
+
+endgame:
+	/* NEED XXX: to special-case both of these to do as little as
+	 * possible and to do it as efficiently as possible (e.g. touching
+	 * fields of a node at the same time) */
+
+	/* NOTE: semantically, what we care about here is whether we are
+	 * the "inner" or "outer" child. */
+	/* BRANCH_NOTE: don't know which child we are */
+	if (__rb_which_child(node) == other_right)
+	{
+		/* The tree has the following structure:
+		 * (* means red)
+		 *
+		 *                     g
+		 *                    / \
+		 *                   p*  t4
+		 *                 /  \
+		 *                t1   n*
+		 *                    /  \
+		 *                   t2   t3
+		 *
+		 * (t2 and t3 can be non-NULL since we may have moved up
+		 * the tree in the loop above)
+		 *
+		 * t1 is black because p is red.
+		 * t2 and t3 are black because they are either NULL right
+		 * after insertion or the result of a color flip.
+		 * t4 is black because that is the condition that breaks us
+		 * out of the loop above.
+		 *
+		 * What we want is the following:
+		 *
+		 *                      n
+		 *                    /   \
+		 *                   p*    g*
+		 *                  /\     /\
+		 *                t1  t2  t3 t4
+		 */
+		register struct rb_node *tmp;
+		/* NOTE: we know very precisely the structure of the tree
+		 * here, so it's likely that that this rotation can be
+		 * greatly simplified if not avoided completely */
+		__rb_rotate_dir(parent, root, which_left);
+		/* NOTE: swap parent and node after rotation since node is
+		 * now the subtree root */
+		tmp = parent;
+		parent = node;
+		node = tmp;
+	}
+
+	/* NOTE: __rb_rotate_left wastes its time
+	 * preserving the color on parent (actually "node",
+	 * because of the swap) */
+	rb_set_black(parent);
+	rb_set_red(gparent);
+	__rb_rotate_dir(gparent, root, other_right);
+	/* NOTE: we know we're done here, so why go back to
+	 * the loop test again? It's completely pointless,
+	 * unless it is for setting the root black... which
+	 * we should not have made red in the first place. */
+	parent = rb_parent(node);
+	// XXX: this will always be true
+	if (parent == NULL || rb_color(parent) == RB_COLOR_BLACK) {
+		rb_set_black(root->rb_node);
+		return;
+	}
+}

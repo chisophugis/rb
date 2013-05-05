@@ -136,7 +136,10 @@ void rb_insert_color(struct rb_node *node, struct rb_root *root)
 				}
 			}
 
-			/* BRANCH_NOTE: don't know which child we are */
+			/* NOTE: semantically, what we care about here is
+			 * whether we are the "inner" or "outer" child. */
+			/* BRANCH_NOTE MEM_READ: don't know which child we
+			 * are */
 			if (parent->rb_right == node)
 			{
 				register struct rb_node *tmp;
