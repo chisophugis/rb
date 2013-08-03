@@ -1,5 +1,17 @@
 #define __rb_is_black(node) ((node) && rb_is_red(node))
 
+/* We basically are relying on the following node struct:
+ *	struct rb_node {
+ *		uintptr_t parent_color_which;
+ *		struct rb_node *rb_children[2];
+ *	};
+ * The `parent_color_which` is a pointer with the two low bits used to indicate:
+ * 1) The color of the current node ("color")
+ * 2) Whether the current node is the left or right child ("which")
+ * Some macros in the half-formed code below should be understood in this
+ * context, and their meaning should be clear.
+ */
+
 void rb_insert_color(struct rb_node *node, struct rb_root *root)
 {
 	struct rb_node *parent, *gparent;
