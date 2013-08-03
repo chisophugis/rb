@@ -16,19 +16,18 @@ techniques.
 
 A surprisingly large number of the red-black trees used in practice are
 basically straight copies of the pseudocode in the CLRS algorithms
-textbook without thinking twice about what is actually going on. See
+textbook without thinking about what the algorithm is actually doing. See
 `bestiary/__info.lua` for more information.
-One particularly annoying example of this is that most implementations
-treat the left-hand and right-hand cases differently, using an `if` with two
-basically identical branches except switching left for right. This
-duplication can be removed by having the node struct store child nodes in
-an array (e.g. `struct rb_node *children[2];`) and access the children
-through indexes. This change reduces alone reduces code size by about half
-and gets rid of unpredictable branches.
-Another dead giveaway that the authors weren't thinking very hard and were
-instead just copying from CLRS is that they have the "end-game" code for
-insert rebalancing *inside* the loop that goes up the tree splitting
-4-nodes, which is ridiculous.
+One particular example of this is that most implementations treat the
+left-hand and right-hand cases separately, using an `if` with two basically
+identical branches except switching left for right. This duplication can be
+removed by having the node struct store child nodes in an array (e.g.
+`struct rb_node *children[2];`) and access the children through indexes.
+This change reduces alone reduces code size by about half and gets rid of
+unpredictable branches.
+Another giveaway that the code is probably derived from CLRS is that the
+"end-game" code for insert rebalancing is *inside* the loop that goes up
+the tree splitting 4-nodes (which really obscures things).
 
 ## Other files
 
@@ -38,8 +37,8 @@ It may look kind of ugly (it has some nasty goto's that could be removed
 fairly easily by "rotating" the main loop, but I haven't done that yet).
 The core of the code is really tight and (at least for me) is extremely
 clear with what the algorithm is actually doing, since the logical parts
-aren't mixed together inside a huge loop (like in CLRS and most other
-implementations).
+aren't mixed together inside a huge loop (like in CLRS and implementations
+derived from it).
 `try.c.bak` contains some remains from a previous version, but I think it
 has some explanations in it that are worth keeping.
 
